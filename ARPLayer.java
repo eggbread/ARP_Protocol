@@ -57,9 +57,16 @@ public class ARPLayer implements BaseLayer {
     }
 	@Override
 	public synchronized boolean Send(byte[] input, int length) {
-		//IPLayer로부터 ARP를 요청받음
+		//IPLayer가 arp테이블을 봤는데 없어서 일로 옴
 		//ARP를 만든다.
-		byte[] headerAddedArray=ObjToByte_Send(arp_Header, (byte)0x06,(byte)0x01);
+		byte[] src_Ip_Address;//여기서 input의 ip넣고
+		byte[] src_Mac_Address;//여기서 내 mac넣고
+		byte[] dst_Ip_Address;//여기서 input의 ip넣고
+		this.arp_Header.arp_srcaddr.ip_addr=src_Ip_Address;
+		this.arp_Header.arp_srcaddr.mac_addr=src_Mac_Address;
+		this.arp_Header.arp_dstaddr.ip_addr=dst_Ip_Address;
+		//dst mac은 0
+		byte[] headerAddedArray=ObjToByte_Send(arp_Header, (byte)0x06,(byte)0x01);//ARP이고 요청인 헤더
 		
 		
 //		if(arp_table.containsKey(dst_Ip)) {//아는경우 ethernet type 0800 헤더생성 
@@ -91,21 +98,24 @@ public class ARPLayer implements BaseLayer {
 		
 		if(opcode[0]==0x00&opcode[1]==0x01) {//ARP 요청 받음
 			this.arp_table.put(src_ip_address, src_mac_address);//table에 추가
+			_ARP_HEADER response_header = new _ARP_HEADER();//보낼 헤드
 			if(dst_ip_address==this.arp_Header.arp_srcaddr.ip_addr) {//내 ip로 옴
-				_ARP_HEADER response_header = new _ARP_HEADER();//보낼 헤드
-				response_header.arp_srcaddr.mac_addr=dst_mac_address;
+				response_header.arp_srcaddr.mac_addr=dst_mac_address;//내 mac주소
 				response_header.arp_srcaddr.ip_addr=dst_ip_address;
 				response_header.arp_dstaddr.mac_addr=src_mac_address;
 				response_header.arp_dstaddr.ip_addr=src_ip_address;
-				byte[] response_arp=ObjToByte_Send(response_header, (byte)0x06, (byte)0x02);
-				this.GetUnderLayer().Send(response_arp,response_arp.length);
 			}else {//내 ip로 안옴
 				if(this.proxy_table.containsKey(dst_ip_address)) {//연결된 proxy이다 ****여기부터 해라*****
-					dst_mac_address=this.proxy_table.get(dst_ip_address);
+					response_header.arp_srcaddr.mac_addr=this.proxy_table.get(dst_ip_address);//proxy mac주소
+					response_header.arp_srcaddr.ip_addr=dst_ip_address;
+					response_header.arp_dstaddr.mac_addr=src_mac_address;
+					response_header.arp_dstaddr.ip_addr=src_ip_address;
 				}else {//proxy아님
-					
+					return false;//proxy아니고 내꺼도 아니니 버린다
 				}
 			}
+			byte[] response_arp=ObjToByte_Send(response_header, (byte)0x06, (byte)0x02);
+			this.GetUnderLayer().Send(response_arp,response_arp.length);
 		}else if(opcode[0]==0x00&opcode[1]==0x02) {//요청이 돌아옴
 			this.arp_table.put(src_ip_address, src_mac_address);//요청받은거 테이블에 저장
 		}
