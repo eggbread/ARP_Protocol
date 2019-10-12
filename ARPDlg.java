@@ -50,7 +50,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 		m_LayerMgr.AddLayer(new IPLayer("IP"));
 		m_LayerMgr.AddLayer(new TCPLayer("TCP"));
 		m_LayerMgr.AddLayer(new ARPDlg("GUI"));
-		m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( +IP ( *TCP ( *GUI )  -ARP ) *ARP ) )");
+		m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( *IP ( *TCP ( *GUI )  -ARP ) *ARP ) )");
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -232,6 +232,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					IPAddress = IPAddress + "          ??????????                         Incomplete\n";
 					ARPCacheTextArea.append(IPAddress);
 					IPAddressArea.setText("");
+					((TCPLayer)m_LayerMgr.GetLayer("TCP")).Send(new byte[0], 0);
 				}
 			}
 			if (e.getSource() == AllDeleteButton) {

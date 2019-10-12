@@ -25,14 +25,14 @@ public class IPLayer implements BaseLayer {
         System.arraycopy(input, 20, temp, 0, length - 20);
         return temp;
     }
-
-    public boolean Send(byte[] input, short length) {
+    
+    public boolean Send(byte[] input, int length) {
         byte[] temp = ObjToByte20(this.ip_header, input, length);
 
         return this.GetUnderLayer().Send(temp, length + 20);    //ARP Layer에게 전달
     }
 
-    public byte[] ObjToByte20(_IP_Header ip_header, byte[] input, short length) {
+    public byte[] ObjToByte20(_IP_Header ip_header, byte[] input, int length) {
 
         byte[] buf = new byte[length + 20];
 
@@ -53,8 +53,8 @@ public class IPLayer implements BaseLayer {
         buf[10] |= ((ip_header.ip_cksum >> 8) & 0xFF);
         buf[11] |= (ip_header.ip_cksum & 0xFF);
 
-        System.arraycopy(ip_header.ip_srcaddr, 0, buf, 12, 4);
-        System.arraycopy(ip_header.ip_dstaddr, 0, buf, 16, 4);
+        System.arraycopy(ip_header.ip_srcaddr.addr, 0, buf, 12, 4);
+        System.arraycopy(ip_header.ip_dstaddr.addr, 0, buf, 16, 4);
 
         return buf;
     }
@@ -141,8 +141,10 @@ public class IPLayer implements BaseLayer {
         String[] hostAddressInString = local.getHostAddress().split("[.]");
 
         byte[] temp = new byte[4];
-        for (int i = 0; i < 4; i++)
-            temp[i] = Byte.parseByte(hostAddressInString[i]);
+        for (int i = 0; i < 4; i++) {
+        	int eachAddress = Integer.parseInt(hostAddressInString[i]);
+        	temp[i] = (byte) (eachAddress & 0xFF);
+        }
 
         return temp;
     }

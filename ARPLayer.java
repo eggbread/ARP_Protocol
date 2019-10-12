@@ -62,9 +62,9 @@ public class ARPLayer implements BaseLayer {
 		byte[] src_Ip_Address;//여기서 input의 ip넣고
 		byte[] src_Mac_Address;//여기서 내 mac넣고
 		byte[] dst_Ip_Address;//여기서 input의 ip넣고
-		this.arp_Header.arp_srcaddr.ip_addr=src_Ip_Address;
-		this.arp_Header.arp_srcaddr.mac_addr=src_Mac_Address;
-		this.arp_Header.arp_dstaddr.ip_addr=dst_Ip_Address;
+//		this.arp_Header.arp_srcaddr.ip_addr=src_Ip_Address;
+//		this.arp_Header.arp_srcaddr.mac_addr=src_Mac_Address;
+//		this.arp_Header.arp_dstaddr.ip_addr=dst_Ip_Address;
 		//dst mac은 0
 		byte[] headerAddedArray=ObjToByte_Send(arp_Header, (byte)0x06,(byte)0x01);//ARP이고 요청인 헤더
 		
