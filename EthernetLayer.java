@@ -120,7 +120,7 @@ public class EthernetLayer implements BaseLayer {
     	byte[] headerAddedArray = new byte[length + 14];
     	int index = 0;
     	byte[] src_mac = this.ethernetHeader.enet_srcaddr.addr;//내 mac주소
-    	byte[] dst_mac = ((ARPLayer)this.GetUpperLayer(0)).getMacAddress(src_mac);//ip에 따른 mac주소 가져오기
+    	byte[] dst_mac = ((ARPLayer)this.GetUpperLayer(1)).getMacAddress(src_mac);//ip에 따른 mac주소 가져오기
     	if(is_checked==0x06&&input[8]==0x01) {//arp요청
     		while (index < 6) {//브로드캐스트
                 headerAddedArray[index] = (byte)0xff;
